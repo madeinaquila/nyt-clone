@@ -11,13 +11,8 @@ function formatDate(dateStr) {
   return date.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function ArticleCard({ article, darkMode, isHero = false }) {
+function ArticleCard({ article, isHero = false }) {
   const [hovered, setHovered] = useState(false)
-
-  const bg = darkMode ? '#121212' : 'white'
-  const text = darkMode ? 'white' : 'black'
-  const subtext = darkMode ? '#aaa' : '#555'
-  const border = darkMode ? '#444' : '#ddd'
 
   if (isHero) {
     return (
@@ -26,44 +21,47 @@ function ArticleCard({ article, darkMode, isHero = false }) {
         onMouseLeave={() => setHovered(false)}
         style={{
           marginBottom: '40px',
-          borderBottom: `2px solid ${text}`,
+          borderBottom: '2px solid var(--text)',
           paddingBottom: '30px',
-          transition: 'opacity 0.3s ease',
-          opacity: hovered ? 0.85 : 1,
           cursor: 'pointer'
         }}
       >
-        <img
-          src={article.multimedia?.[0]?.url || FALLBACK_IMG}
-          alt={article.title}
-          style={{
-            width: '100%',
-            height: '400px',
-            objectFit: 'cover',
-            marginBottom: '20px',
-            transition: 'transform 0.4s ease',
-            transform: hovered ? 'scale(1.02)' : 'scale(1)'
-          }}
-        />
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', color: subtext, marginBottom: '4px' }}>
+        <div style={{ overflow: 'hidden' }}>
+          <img
+            src={article.multimedia?.[0]?.url || FALLBACK_IMG}
+            alt={article.title}
+            style={{
+              width: '100%',
+              height: '400px',
+              objectFit: 'cover',
+              marginBottom: '20px',
+              transition: 'transform 0.4s ease',
+              transform: hovered ? 'scale(1.02)' : 'scale(1)'
+            }}
+          />
+        </div>
+        <p style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--subtext)', marginBottom: '4px' }}>
           {article.section}
         </p>
-        <p style={{ fontSize: '11px', color: subtext, marginBottom: '8px' }}>
+        <p style={{ fontSize: '11px', color: 'var(--subtext)', marginBottom: '8px' }}>
           {formatDate(article.published_date)}
         </p>
         <h1 style={{
-          fontSize: '2rem', lineHeight: '1.3', marginBottom: '12px',
-          fontFamily: 'Georgia, serif', color: text,
+          fontSize: '2rem',
+          lineHeight: '1.3',
+          marginBottom: '12px',
+          fontFamily: 'Georgia, serif',
+          color: 'var(--text)',
           textDecoration: hovered ? 'underline' : 'none'
         }}>
           {article.title}
         </h1>
-        <p style={{ fontSize: '1rem', color: subtext, marginBottom: '16px', lineHeight: '1.6' }}>
+        <p style={{ fontSize: '1rem', color: 'var(--subtext)', marginBottom: '16px', lineHeight: '1.6' }}>
           {article.abstract}
         </p>
         <a href={article.url} target="_blank" rel="noreferrer"
-          style={{ color: text, fontWeight: 'bold', fontSize: '14px' }}>
-          Leggi tutto →
+          style={{ color: 'var(--text)', fontWeight: 'bold', fontSize: '14px' }}>
+          Leggi tutto
         </a>
       </div>
     )
@@ -74,11 +72,11 @@ function ArticleCard({ article, darkMode, isHero = false }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderBottom: `1px solid ${border}`,
+        borderBottom: '1px solid var(--border)',
         paddingBottom: '20px',
         cursor: 'pointer',
         transition: 'transform 0.2s ease',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        transform: hovered ? 'translateY(-4px)' : 'translateY(0)'
       }}
     >
       <div style={{ overflow: 'hidden' }}>
@@ -95,32 +93,35 @@ function ArticleCard({ article, darkMode, isHero = false }) {
           }}
         />
       </div>
-      <p style={{ fontSize: '11px', textTransform: 'uppercase', color: subtext, marginBottom: '2px' }}>
+      <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--subtext)', marginBottom: '2px' }}>
         {article.section}
       </p>
-      <p style={{ fontSize: '10px', color: subtext, marginBottom: '6px' }}>
+      <p style={{ fontSize: '10px', color: 'var(--subtext)', marginBottom: '6px' }}>
         {formatDate(article.published_date)}
       </p>
       <h2 style={{
-        fontSize: '1rem', marginBottom: '8px',
-        fontFamily: 'Georgia, serif', lineHeight: '1.4', color: text,
+        fontSize: '1rem',
+        marginBottom: '8px',
+        fontFamily: 'Georgia, serif',
+        lineHeight: '1.4',
+        color: 'var(--text)',
         textDecoration: hovered ? 'underline' : 'none'
       }}>
         {article.title}
       </h2>
       <a href={article.url} target="_blank" rel="noreferrer"
-        style={{ color: text, fontWeight: 'bold', fontSize: '13px' }}>
-        Leggi tutto →
+        style={{ color: 'var(--text)', fontWeight: 'bold', fontSize: '13px' }}>
+        Leggi tutto
       </a>
     </div>
   )
 }
 
 function HomePage() {
-  const { articles, setArticles, popular, setPopular, loading, setLoading, section, darkMode } = useNews()
+  const { articles, setArticles, popular, setPopular, loading, setLoading, section } = useNews()
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [page, setPage] = useState(1)
-  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState(null)
   const ARTICLES_PER_PAGE = 9
 
   useEffect(() => {
@@ -132,12 +133,13 @@ function HomePage() {
   useEffect(() => {
     const fetchNews = async () => {
       setLoading(true)
+      setError(null)
       setPage(1)
       try {
         const data = await getTopStories(section)
         setArticles(data)
-      } catch (error) {
-        console.error('Errore:', error)
+      } catch (err) {
+        setError('Errore nel caricamento delle notizie. Riprova piu tardi.')
       } finally {
         setLoading(false)
       }
@@ -150,8 +152,8 @@ function HomePage() {
       try {
         const data = await getMostPopular()
         setPopular(data)
-      } catch (error) {
-        console.error('Errore popular:', error)
+      } catch (err) {
+        console.error('Errore Most Popular:', err)
       }
     }
     fetchPopular()
@@ -162,79 +164,90 @@ function HomePage() {
   const rest = validArticles.slice(1, 1 + page * ARTICLES_PER_PAGE)
   const hasMore = validArticles.length > 1 + page * ARTICLES_PER_PAGE
 
-  const bg = darkMode ? '#121212' : 'white'
-  const text = darkMode ? 'white' : 'black'
-  const subtext = darkMode ? '#aaa' : '#555'
-  const border = darkMode ? '#444' : '#ddd'
-
   return (
-    <div style={{ background: bg, minHeight: '100vh', color: text }}>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)' }}>
       <Navbar />
       <div style={{
-        maxWidth: '1200px', margin: '0 auto', padding: '20px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '20px',
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
         gap: '40px'
       }}>
 
-        {/* COLONNA SINISTRA */}
         <div>
-          {loading && <p>Caricamento...</p>}
+          {loading && <p style={{ color: 'var(--subtext)' }}>Caricamento...</p>}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
 
-          {hero && <ArticleCard article={hero} darkMode={darkMode} isHero={true} />}
+          {hero && <ArticleCard article={hero} isHero={true} />}
 
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
             gap: '24px'
           }}>
-            {rest.map((article, index) => (
-              <ArticleCard key={index} article={article} darkMode={darkMode} />
+            {rest.map((article) => (
+              <ArticleCard key={article.url} article={article} />
             ))}
           </div>
 
-          {/* PAGINAZIONE */}
           {hasMore && (
             <div style={{ textAlign: 'center', marginTop: '40px' }}>
               <button
                 onClick={() => setPage(p => p + 1)}
-                disabled={loadingMore}
                 style={{
-                  background: darkMode ? 'white' : 'black',
-                  color: darkMode ? 'black' : 'white',
+                  background: 'var(--text)',
+                  color: 'var(--bg)',
                   border: 'none',
                   padding: '12px 32px',
                   fontSize: '15px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  borderRadius: '2px',
-                  transition: 'opacity 0.2s',
-                  opacity: loadingMore ? 0.6 : 1
+                  borderRadius: '2px'
                 }}
               >
-                {loadingMore ? 'Caricamento...' : 'Carica altri articoli'}
+                Carica altri articoli
               </button>
             </div>
           )}
         </div>
 
-        {/* SIDEBAR MOST POPULAR */}
         {!isMobile && (
-          <div style={{ borderLeft: `1px solid ${border}`, paddingLeft: '30px' }}>
+          <div style={{ borderLeft: '1px solid var(--border)', paddingLeft: '30px' }}>
             <h3 style={{
-              fontFamily: 'Georgia, serif', fontSize: '1.2rem',
-              borderBottom: `2px solid ${text}`, paddingBottom: '8px',
-              marginBottom: '16px', color: text
+              fontFamily: 'Georgia, serif',
+              fontSize: '1.2rem',
+              borderBottom: '2px solid var(--text)',
+              paddingBottom: '8px',
+              marginBottom: '16px',
+              color: 'var(--text)'
             }}>
               Most Popular
             </h3>
             {popular.slice(0, 8).map((article, index) => (
-              <div key={index} style={{ borderBottom: `1px solid ${border}`, paddingBottom: '16px', marginBottom: '16px' }}>
-                <span style={{ fontSize: '24px', fontWeight: 'bold', color: border, display: 'block', marginBottom: '4px' }}>
+              <div key={article.url} style={{
+                borderBottom: '1px solid var(--border)',
+                paddingBottom: '16px',
+                marginBottom: '16px'
+              }}>
+                <span style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: 'var(--border)',
+                  display: 'block',
+                  marginBottom: '4px'
+                }}>
                   {index + 1}
                 </span>
                 <a href={article.url} target="_blank" rel="noreferrer"
-                  style={{ color: text, textDecoration: 'none', fontFamily: 'Georgia, serif', fontSize: '14px', lineHeight: '1.4' }}>
+                  style={{
+                    color: 'var(--text)',
+                    textDecoration: 'none',
+                    fontFamily: 'Georgia, serif',
+                    fontSize: '14px',
+                    lineHeight: '1.4'
+                  }}>
                   {article.title}
                 </a>
               </div>

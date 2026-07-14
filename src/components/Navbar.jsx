@@ -31,13 +31,12 @@ function Navbar() {
 
   return (
     <nav style={{
-      borderBottom: '2px solid',
-      borderColor: darkMode ? '#444' : 'black',
+      borderBottom: '2px solid var(--border)',
       padding: '16px 0',
       textAlign: 'center',
       position: 'sticky',
       top: 0,
-      background: darkMode ? '#121212' : 'white',
+      background: 'var(--nav-bg)',
       zIndex: 100
     }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 20px', marginBottom: '8px' }}>
@@ -45,9 +44,8 @@ function Navbar() {
           onClick={() => setDarkMode(!darkMode)}
           style={{
             background: 'none',
-            border: '1px solid',
-            borderColor: darkMode ? 'white' : 'black',
-            color: darkMode ? 'white' : 'black',
+            border: '1px solid var(--text)',
+            color: 'var(--text)',
             padding: '4px 12px',
             cursor: 'pointer',
             borderRadius: '4px',
@@ -58,7 +56,7 @@ function Navbar() {
         </button>
       </div>
 
-      <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2.5rem', margin: '0 0 12px 0', color: darkMode ? 'white' : 'black' }}>
+      <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '2.5rem', margin: '0 0 12px 0', color: 'var(--text)' }}>
         The New York Times
       </h1>
 
@@ -71,12 +69,11 @@ function Navbar() {
           style={{
             padding: '6px 14px',
             fontSize: '14px',
-            border: '1px solid',
-            borderColor: darkMode ? '#555' : '#ccc',
+            border: '1px solid var(--input-border)',
             borderRadius: '20px',
             width: '280px',
-            background: darkMode ? '#222' : 'white',
-            color: darkMode ? 'white' : 'black',
+            background: 'var(--input-bg)',
+            color: 'var(--text)',
             outline: 'none'
           }}
         />
@@ -85,8 +82,8 @@ function Navbar() {
           style={{
             marginLeft: '8px',
             padding: '6px 16px',
-            background: darkMode ? 'white' : 'black',
-            color: darkMode ? 'black' : 'white',
+            background: 'var(--text)',
+            color: 'var(--bg)',
             border: 'none',
             borderRadius: '20px',
             cursor: 'pointer',
@@ -109,9 +106,9 @@ function Navbar() {
               fontSize: '14px',
               fontWeight: section === sec ? 'bold' : 'normal',
               textTransform: 'capitalize',
-              borderBottom: section === sec ? `2px solid ${darkMode ? 'white' : 'black'}` : 'none',
+              borderBottom: section === sec ? '2px solid var(--text)' : 'none',
               paddingBottom: '4px',
-              color: darkMode ? 'white' : 'black'
+              color: 'var(--text)'
             }}
           >
             {sec}
